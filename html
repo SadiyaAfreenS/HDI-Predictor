@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HDI Predictor · Human Development Index</title>
+
+    <!-- Font & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ---------- CSS Variables ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f0f4ff;
+            --surface: #ffffff;
+            --surface2: #e8edf9;
+            --text: #1a1a2e;
+            --text2: #4a4a6a;
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.3);
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #dce3ed;
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            --radius: 20px;
+            --transition: 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            --font: 'Inter', system-ui, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0d0d1a;
+            --surface: #16162e;
+            --surface2: #1e1e3a;
+            --text: #eaeaff;
+            --text2: #a0a0c0;
+            --border: #2a2a4a;
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            --primary: #818cf8;
+            --primary-glow: rgba(129, 140, 248, 0.25);
+            --secondary: #22d3ee;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ---------- Animated Background ---------- */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--surface2) 50%, var(--bg) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* ---------- Floating Particles ---------- */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0.08;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.08;
+            }
+            90% {
+                opacity: 0.08;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(720deg) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* ---------- Layout ---------- */
+        .app {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 28px;
+            transition: all var(--transition);
+            animation: headerGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes headerGlow {
+            0%,
+            100% {
+                box-shadow: 0 12px 40px rgba(79, 70, 229, 0.06);
+            }
+            50% {
+                box-shadow: 0 12px 60px rgba(79, 70, 229, 0.15);
+            }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .logo i {
+            color: var(--primary);
+            font-size: 2rem;
+            filter: drop-shadow(0 0 8px var(--primary-glow));
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 8px var(--primary-glow));
+            }
+            50% {
+                filter: drop-shadow(0 0 20px var(--primary-glow));
+            }
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textShimmer 4s ease-in-out infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes textShimmer {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: var(--surface2);
+            border: none;
+            color: var(--text2);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: var(--primary-glow);
+            transition: all 0.6s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn-icon:hover::before {
+            width: 100px;
+            height: 100px;
+        }
+
+        .btn-icon:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: scale(1.05) rotate(5deg);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        /* ---------- Hero Section ---------- */
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 28px;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 60%;
+            height: 200%;
+            background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+            opacity: 0.3;
+            animation: heroGlow 8s ease-in-out infinite;
+        }
+
+        @keyframes heroGlow {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(-20%, -10%) scale(1.2);
+            }
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        .hero h1 i {
+            color: var(--primary);
+            margin-right: 12px;
+        }
+        .hero p {
+            color: var(--text2);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ---------- Main Grid ---------- */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ---------- Cards ---------- */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h3 i {
+            color: var(--primary);
+        }
+
+        /* ---------- Input Sliders ---------- */
+        .slider-group {
+            margin-bottom: 20px;
+        }
+
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .slider-group label span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--surface2);
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--primary-glow);
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: none;
+        }
+
+        /* ---------- Predict Button ---------- */
+        .predict-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .predict-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .predict-btn:hover::before {
+            left: 100%;
+        }
+
+        .predict-btn:hover {
+            transform: scale(1.02) translateY(-2px);
+            box-shadow: 0 8px 32px var(--primary-glow);
+        }
+
+        .predict-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* ---------- Result Display ---------- */
+        .result-card {
+            text-align: center;
+            padding: 30px 24px;
+        }
+
+        .hdi-score {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: scorePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scorePulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .hdi-category {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 8px 0 16px;
+            padding: 8px 24px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
+        .hdi-category.very-high {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .hdi-category.high {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .hdi-category.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .hdi-category.low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        [data-theme="dark"] .hdi-category.very-high {
+            background: #065f46;
+            color: #d1fae5;
+        }
+        [data-theme="dark"] .hdi-category.high {
+            background: #1e40af;
+            color: #dbeafe;
+        }
+        [data-theme="dark"] .hdi-category.medium {
+            background: #92400e;
+            color: #fef3c7;
+        }
+        [data-theme="dark"] .hdi-category.low {
+            background: #991b1b;
+            color: #fee2e2;
+        }
+
+        /* ---------- Scenarios ---------- */
+        .scenario-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .scenario-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border: 2px solid var(--border);
+            background: var(--surface2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .scenario-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--primary-glow);
+        }
+
+        .scenario-btn i {
+            margin-right: 6px;
+            color: var(--primary);
+        }
+
+        .scenario-btn.active {
+            border-color: var(--primary);
+            background: var(--primary-glow);
+        }
+
+        /* ---------- Chart Container ---------- */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 16px;
+        }
+
+        /* ---------- Comparison Table ---------- */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .comparison-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .comp-item {
+            text-align: center;
+            padding: 12px;
+            background: var(--surface2);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .comp-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px var(--primary-glow);
+        }
+
+        .comp-item .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .comp-item .label {
+            font-size: 0.75rem;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+
+        /* ---------- Footer ---------- */
+        .footer {
+            text-align: center;
+            padding: 24px 0 8px;
+            font-size: 0.85rem;
+            color: var(--text2);
+            border-top: 1px solid var(--border);
+            margin-top: 20px;
+        }
+
+        /* ---------- Animations ---------- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.8s ease both;
+        }
+        .fade-in:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        .fade-in:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        .fade-in:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        /* ---------- Scrollbar ---------- */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--surface2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="app">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <i class="fas fa-chart-bar"></i>
+                <span>HDI Predictor</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="themeToggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="btn-icon" title="About">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <div class="hero">
+            <h1><i class="fas fa-globe-asia"></i> Human Development Index Predictor</h1>
+            <p>Enter development indicators to predict HDI score and identify the development tier of any nation. Based on UN Development Programme methodology.</p>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Input Section -->
+            <div class="card">
+                <h3><i class="fas fa-sliders-h"></i> Development Indicators</h3>
+
+                <div class="slider-group">
+                    <label>Life Expectancy <span id="lifeSpan">72.5</span></label>
+                    <input type="range" id="lifeExpectancy" min="50" max="85" value="72.5" step="0.1" />
+                </div>
+
+                <div class="slider-group">
+                    <label>Mean Years of Schooling <span id="schoolSpan">10.2</span></label>
+                    <input type="range" id="meanSchooling" min="2" max="15" value="10.2" step="0.1" />
+                </div>
+
+                <div class="slider-group">
+                    <label>Expected Years of Schooling <span id="expectedSpan">14.5</span></label>
+                    <input type="range" id="expectedSchooling" min="4" max="20" value="14.5" step="0.1" />
+                </div>
+
+                <div class="slider-group">
+                    <label>GNI per Capita (USD) <span id="gniSpan">15,200</span></label>
+                    <input type="range" id="gniPerCapita" min="500" max="60000" value="15200" step="100" />
+                </div>
+
+                <button class="predict-btn" id="predictBtn">
+                    <i class="fas fa-brain"></i> Predict HDI
+                </button>
+
+                <div style="margin-top:16px;">
+                    <p style="font-size:0.85rem;color:var(--text2);margin-bottom:8px;"><i class="fas fa-lightbulb"></i> Quick Scenarios:</p>
+                    <div class="scenario-buttons">
+                        <button class="scenario-btn" data-scenario="very-high"><i class="fas fa-star"></i> Very High</button>
+                        <button class="scenario-btn" data-scenario="high"><i class="fas fa-arrow-up"></i> High</button>
+                        <button class="scenario-btn" data-scenario="medium"><i class="fas fa-minus"></i> Medium</button>
+                        <button class="scenario-btn" data-scenario="low"><i class="fas fa-arrow-down"></i> Low</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="card result-card">
+                <h3><i class="fas fa-chart-line"></i> HDI Prediction</h3>
+
+                <div style="margin:20px 0;">
+                    <div class="hdi-score" id="hdiScore">0.725</div>
+                    <div class="hdi-category very-high" id="hdiCategory">Very High</div>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="comp-item">
+                        <div class="value" id="compLife">72.5</div>
+                        <div class="label">Life Expectancy</div>
+                    </div>
+                    <div class="comp-item">
+                        <div class="value" id="compSchool">10.2</div>
+                        <div class="label">Mean Schooling</div>
+                    </div>
+                    <div class="comp-item">
+                        <div class="value" id="compExpected">14.5</div>
+                        <div class="label">Expected Schooling</div>
+                    </div>
+                    <div class="comp-item">
+                        <div class="value" id="compGNI">15.2k</div>
+                        <div class="label">GNI per Capita</div>
+                    </div>
+                </div>
+
+                <div style="margin-top:16px;padding:12px;background:var(--surface2);border-radius:12px;">
+                    <p style="font-size:0.9rem;color:var(--text2);" id="hdiDescription">
+                        <i class="fas fa-info-circle"></i> Very High Human Development — Strong performance across all dimensions.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="card">
+            <h3><i class="fas fa-chart-bar"></i> Development Indicators Comparison</h3>
+            <div class="chart-container">
+                <canvas id="hdiChart"></canvas>
+            </div>
+        </div>
+
+        <div class="footer">
+            <i class="fas fa-shield-alt"></i> Based on UNDP Methodology · v2.0
+        </div>
+    </div>
+
+    <script>
+        // ---------- Create Floating Particles ----------
+        function createParticles() {
+            var container = document.getElementById('particles');
+            var colors = ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
+
+            for (var i = 0; i < 25; i++) {
+                var particle = document.createElement('div');
+                particle.className = 'particle';
+                var size = Math.random() * 6 + 3;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.animationDuration = (Math.random() * 20 + 15) + 's';
+                particle.style.animationDelay = (Math.random() * 20) + 's';
+                particle.style.opacity = Math.random() * 0.12 + 0.03;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // ---------- DOM Elements ----------
+        var lifeExpectancy = document.getElementById('lifeExpectancy');
+        var meanSchooling = document.getElementById('meanSchooling');
+        var expectedSchooling = document.getElementById('expectedSchooling');
+        var gniPerCapita = document.getElementById('gniPerCapita');
+
+        var lifeSpan = document.getElementById('lifeSpan');
+        var schoolSpan = document.getElementById('schoolSpan');
+        var expectedSpan = document.getElementById('expectedSpan');
+        var gniSpan = document.getElementById('gniSpan');
+
+        var hdiScore = document.getElementById('hdiScore');
+        var hdiCategory = document.getElementById('hdiCategory');
+        var hdiDescription = document.getElementById('hdiDescription');
+
+        var compLife = document.getElementById('compLife');
+        var compSchool = document.getElementById('compSchool');
+        var compExpected = document.getElementById('compExpected');
+        var compGNI = document.getElementById('compGNI');
+
+        var predictBtn = document.getElementById('predictBtn');
+
+        // ---------- Chart ----------
+        var hdiChart = null;
+
+        function initChart() {
+            var ctx = document.getElementById('hdiChart').getContext('2d');
+            hdiChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Life Expectancy', 'Mean Schooling', 'Expected Schooling', 'GNI per Capita'],
+                    datasets: [{
+                        label: 'Current Values',
+                        data: [72.5, 10.2, 14.5, 15.2],
+                        backgroundColor: ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b'],
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text2').trim() ||
+                                    '#4a4a6a'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text2').trim() ||
+                                    '#4a4a6a'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(life, school, expected, gni) {
+            if (!hdiChart) return;
+            hdiChart.data.datasets[0].data = [life, school, expected, gni / 1000];
+            hdiChart.update();
+        }
+
+        // ---------- HDI Prediction Algorithm ----------
+        function predictHDI(life, school, expected, gni) {
+            // Normalize each indicator to 0-1 scale
+            var lifeNorm = Math.min((life - 50) / 35, 1);
+            var schoolNorm = Math.min((school - 2) / 13, 1);
+            var expectedNorm = Math.min((expected - 4) / 16, 1);
+            var gniNorm = Math.min(Math.log(gni) / Math.log(60000), 1);
+
+            // Calculate HDI (geometric mean)
+            var hdi = Math.pow(lifeNorm * schoolNorm * expectedNorm * gniNorm, 0.25);
+            return Math.round(hdi * 1000) / 1000;
+        }
+
+        function getCategory(hdi) {
+            if (hdi >= 0.800) {
+                return {
+                    label: 'Very High',
+                    class: 'very-high',
+                    desc: 'Very High Human Development — Strong performance across all dimensions. These countries enjoy long life expectancy, universal education, and high living standards.'
+                };
+            }
+            if (hdi >= 0.700) {
+                return {
+                    label: 'High',
+                    class: 'high',
+                    desc: 'High Human Development — Good progress across all indicators. These nations have well-developed healthcare, education systems, and growing economies.'
+                };
+            }
+            if (hdi >= 0.550) {
+                return {
+                    label: 'Medium',
+                    class: 'medium',
+                    desc: 'Medium Human Development — Moderate performance with room for improvement. Emerging economies often fall in this category, with potential for growth in education and income.'
+                };
+            }
+            return {
+                label: 'Low',
+                class: 'low',
+                desc: 'Low Human Development — Significant challenges across multiple dimensions. These countries require targeted interventions in healthcare, education, and economic development.'
+            };
+        }
+
+        // ---------- Update UI ----------
+        function updateHDI() {
+            var life = parseFloat(lifeExpectancy.value);
+            var school = parseFloat(meanSchooling.value);
+            var expected = parseFloat(expectedSchooling.value);
+            var gni = parseFloat(gniPerCapita.value);
+
+            // Update displayed values
+            lifeSpan.textContent = life.toFixed(1);
+            schoolSpan.textContent = school.toFixed(1);
+            expectedSpan.textContent = expected.toFixed(1);
+            gniSpan.textContent = gni.toLocaleString();
+
+            // Predict
+            var hdi = predictHDI(life, school, expected, gni);
+            var category = getCategory(hdi);
+
+            // Update result
+            hdiScore.textContent = hdi.toFixed(3);
+            hdiCategory.textContent = category.label;
+            hdiCategory.className = 'hdi-category ' + category.class;
+            hdiDescription.innerHTML = '<i class="fas fa-info-circle"></i> ' + category.desc;
+
+            // Update comparison
+            compLife.textContent = life.toFixed(1);
+            compSchool.textContent = school.toFixed(1);
+            compExpected.textContent = expected.toFixed(1);
+            compGNI.textContent = (gni / 1000).toFixed(1) + 'k';
+
+            // Update chart
+            updateChart(life, school, expected, gni);
+        }
+
+        // ---------- Event Listeners ----------
+        lifeExpectancy.addEventListener('input', updateHDI);
+        meanSchooling.addEventListener('input', updateHDI);
+        expectedSchooling.addEventListener('input', updateHDI);
+        gniPerCapita.addEventListener('input', updateHDI);
+
+        predictBtn.addEventListener('click', function() {
+            updateHDI();
+            // Add a subtle animation effect
+            hdiScore.style.animation = 'none';
+            setTimeout(function() {
+                hdiScore.style.animation = 'scorePulse 2s ease-in-out infinite';
+            }, 10);
+        });
+
+        // ---------- Scenarios ----------
+        var scenarios = {
+            'very-high': { life: 82, school: 13.5, expected: 18.5, gni: 50000 },
+            'high': { life: 76, school: 11.5, expected: 15.5, gni: 25000 },
+            'medium': { life: 68, school: 8.5, expected: 12.5, gni: 8000 },
+            'low': { life: 58, school: 4.5, expected: 7.5, gni: 1500 }
+        };
+
+        var scenarioBtns = document.querySelectorAll('.scenario-btn');
+        scenarioBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var scenario = this.dataset.scenario;
+                var values = scenarios[scenario];
+                if (!values) return;
+
+                lifeExpectancy.value = values.life;
+                meanSchooling.value = values.school;
+                expectedSchooling.value = values.expected;
+                gniPerCapita.value = values.gni;
+
+                updateHDI();
+
+                // Highlight button
+                scenarioBtns.forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // ---------- Theme Toggle ----------
+        var themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', function() {
+            var html = document.documentElement;
+            var current = html.getAttribute('data-theme');
+            var next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            this.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+
+            // Update chart colors
+            if (hdiChart) {
+                hdiChart.options.scales.y.ticks.color = getComputedStyle(document.documentElement).getPropertyValue(
+                    '--text2').trim() || '#4a4a6a';
+                hdiChart.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue(
+                    '--text2').trim() || '#4a4a6a';
+                hdiChart.update();
+            }
+        });
+
+        // ---------- Init ----------
+        window.addEventListener('load', function() {
+            initChart();
+            updateHDI();
+
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+
+            // Highlight default scenario
+            document.querySelector('.scenario-btn[data-scenario="very-high"]').classList.add('active');
+        });
+    </script>
+
+</body>
+</html>
