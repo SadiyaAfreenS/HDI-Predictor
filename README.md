@@ -1,121 +1,88 @@
-# HDI Predictor – Human Development Index Prediction System
+﻿# HDI-Predictor
 
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+## Introduction
+HDI-Predictor is a professional academic AI/ML project that predicts the Human Development Index using key development indicators such as life expectancy, mean schooling, expected schooling, and GNI per capita. The project is designed as a polished, submission-ready repository that demonstrates software engineering, documentation, testing, and presentation practices for a college-level ML project.
 
-A polished, interactive web application that predicts the Human Development Index (HDI) using key development indicators such as life expectancy, years of schooling, expected schooling, and GNI per capita. The system is designed to be visually engaging, beginner-friendly, and suitable for presentation, learning, and portfolio use.
+## Problem Statement
+The Human Development Index is a vital measure of a country’s development, but manually analyzing it can be time-consuming and difficult for students and beginners. This project provides an interactive platform to estimate HDI values quickly and visually understand how development indicators influence the final outcome.
 
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Folder Structure](#folder-structure)
-- [Installation](#installation)
-- [Demo](#demo)
-- [Screenshots](#screenshots)
-- [Future Improvements](#future-improvements)
-- [Developer](#developer)
-- [License](#license)
-
-## Project Overview
-HDI Predictor is a front-end application developed to demonstrate how development indicators influence a country's Human Development Index. It allows users to experiment with different input values and instantly view the resulting HDI score, category, and chart-based visualization. The project was created to combine data-driven logic with an elegant and responsive user interface.
+## Objectives
+- Build an interactive HDI prediction system
+- Provide a simple and user-friendly interface for academic demonstration
+- Organize the repository into a professional AI/ML project template
+- Deliver documentation, testing, and presentation materials for submission
 
 ## Features
-- Human Development Index Prediction
-- Interactive Sliders
-- Real-Time Results
-- Dynamic Charts using Chart.js
-- Dark Mode
-- Responsive Design
-- Modern UI
-- Quick Scenario Buttons
-- Animated Background
-- Beginner Friendly
+- Interactive sliders for development indicators
+- Real-time HDI prediction and category display
+- Dynamic chart visualization
+- Quick scenario presets for different development levels
+- Clean academic project structure and documentation
 
-## Tech Stack
+## Technologies Used
 - HTML5
 - CSS3
-- JavaScript (ES6)
+- JavaScript
 - Chart.js
-- Font Awesome
-- Google Fonts
+- Python
+- Jupyter Notebook
+- scikit-learn
 
-## Folder Structure
-```text
-HDI-Predictor/
-├── index.html
-├── README.md
-├── LICENSE
-├── .gitignore
-├── css/
-│   └── style.css
-├── js/
-│   └── script.js
-├── assets/
-│   ├── images/
-│   ├── icons/
-│   └── screenshots/
-└── docs/
-    └── documentation.md
-```
+## Dataset
+The project includes a sample dataset in the development folder containing HDI-relevant features such as life expectancy, schooling, expected schooling, GNI, and HDI values.
 
 ## Installation
-Follow the steps below to run the project locally:
+1. Clone the repository.
+2. Open the project folder in your preferred editor.
+3. Launch the application from the Source Code folder by opening the HTML file in a browser.
+4. Optionally, run a local server:
 
-1. Clone the repository
-   ```bash
-   git clone https://github.com/your-username/HDI-Predictor.git
-   ```
-2. Navigate into the project folder
-   ```bash
-   cd HDI-Predictor
-   ```
-3. Open the project in your browser
-   - You can open `index.html` directly, or
-   - Run a local server for a smoother experience
-
-### Run Locally with Python
 ```bash
 python -m http.server 8000
 ```
-Then open:
+
+## Usage
+- Open the application from the Source Code folder.
+- Adjust the indicator values using the sliders.
+- Click Predict HDI to view the result.
+- Review the chart and scenario buttons for additional insights.
+
+## Project Structure
 ```text
-http://localhost:8000
+HDI-Predictor/
+├── 1. Brainstorming & Ideation/
+├── 2. Requirement Analysis/
+├── 3. Project Design Phase/
+├── 4. Project Planning Phase/
+├── 5. Project Development Phase/
+│   ├── Dataset/
+│   ├── Source Code/
+│   ├── Model/
+│   ├── Notebook/
+│   └── requirements.txt
+├── 6. Project Testing/
+├── 7. Project Documentation/
+├── 8. Project Demonstration/
+└── README.md
 ```
 
-## Demo
-Watch the demo video here:
+## Model Training
+This repository includes a sample model artifact and a development-ready structure for future training workflows. The prediction logic remains unchanged and is preserved in the existing JavaScript implementation.
 
-- [HDI Predictor Demo Video](https://drive.google.com/file/d/1oLBb2M-aB1G9xSkefEgbsBM032t2y-EI/view?usp=sharing)
+## Prediction
+The application predicts the HDI score based on the input indicators and displays the result along with the corresponding development category.
 
-## 📸 Screenshots
+## Results
+The project outputs a predicted HDI score, category, and visual comparison chart for the selected indicators.
 
-### Home Page
-![Home](assets/screenshots/home.png)
+## Future Scope
+- Integrate a real machine learning model trained on a larger dataset
+- Add notebook-based experimentation and evaluation
+- Improve documentation and presentation quality
+- Expand into deployment and cloud-based hosting
 
-### Prediction Result
-![Prediction](assets/screenshots/prediction.png)
-
-### Charts
-![Charts](assets/screenshots/chart.png)
-
-### Dark Mode
-![Dark Mode](assets/screenshots/darkmode.png)
-
-## Future Improvements
-- Export PDF
-- AI Model Integration
-- Database Support
-- User Login
-- Admin Dashboard
-- Country Comparison
-- Cloud Deployment
-
-## Developer
-Your Name
+## Contributors
+- HDI Predictor Project Team
 
 ## License
-MIT License
+This project is licensed under the MIT License.
